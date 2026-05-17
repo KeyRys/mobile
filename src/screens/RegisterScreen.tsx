@@ -9,7 +9,7 @@ import {
     Alert
 } from 'react-native';
 import { router } from 'expo-router';
-import { registerAuth } from '../services/register-auth';
+import { registerAuth } from '@/src/services/register_auth';
 
 type Props = {
     navigation: any;
@@ -42,7 +42,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   return (
     <View style={styles.container}>
         <Text style={styles.title}>Adorabbit</Text>
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Image source={require('@/src/assets/logo.png')} style={styles.logo} />
         <TextInput
             placeholder="Name"
             style={styles.input}

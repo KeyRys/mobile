@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { loginAuth } from '../services/login-auth';
+import { loginAuth } from '@/src/services/login_auth';
 
 const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState<string>('');
@@ -28,15 +28,15 @@ const LoginScreen: React.FC = () => {
     try {
       setLoading(true);
 
-      // 🔥 Call backend API
+      // Call backend API
       const res = await loginAuth(email, password);
 
       const token = res.token;
 
-      // ✅ Save JWT locally
+      // Save JWT locally
       await AsyncStorage.setItem('token', token);
 
-      // ✅ Navigate to home
+      // Navigate to home
       router.replace('../home');
 
     } catch (err: any) {
@@ -54,7 +54,7 @@ const LoginScreen: React.FC = () => {
   return (
     <View style={styles.container}>
         <Text style={styles.title}>Adorabbit</Text>
-        <Image source={require('../assets/logo.png')} style={styles.logo} />
+        <Image source={require('@/src/assets/logo.png')} style={styles.logo} />
         {/* Email */}
         <TextInput
             placeholder="Email"

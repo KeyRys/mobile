@@ -1,18 +1,24 @@
-import { useEffect, useState } from "react";
-import { Image, Modal, View, Text, FlatList, StyleSheet, Pressable, TouchableWithoutFeedback, Alert } from "react-native";
+import { startTransition, useEffect, useState } from "react";
+import { Image, Modal, View, Text, FlatList, StyleSheet, Pressable, TouchableWithoutFeedback, Alert, TouchableOpacity } from "react-native";
 import { api } from "@/src/services/api";
-import { getProductById } from "@/src/services/product-service";
+import { getProductById } from "@/src/services/product_service";
+import { router } from "expo-router";
 import ProductCard from "@/src/components/ProductCard";
-import { addToCart } from "@/src/services/cart-service";
+import { addToCart } from "@/src/services/cart_service";
+import { getRecentRabbits, saveRecentRabbit } from "../services/recentRabbit";
+import { getRecommendations } from "../services/recommendation";
 
 interface Product {
   id: string;
-  title: string;
+  name: string;
   breed: string;
   weight: number;
   color: string;
   gender: string
   price: number;
+  age: number;
+  purpose: string;
+  health_status: string;
 }
 
 const HomeScreen = () => {
@@ -20,6 +26,7 @@ const HomeScreen = () => {
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
+  const [recommended, setRecommended] = useState<Product[]>([]);
 
   const fetchProducts = async () => {
     try {
@@ -30,30 +37,54 @@ const HomeScreen = () => {
     }
   };
 
-  const handleProductPress = async (product: Product) => {
+  const loadRabbitDetail = async (rabbit: Product) => {
     try {
       setLoadingDetail(true);
-      setModalVisible(true);
 
-      const fullData = await getProductById(product.id);
-      setSelectedProduct(fullData);
+      // fetch latest detail
+      const detail = await getProductById(rabbit.id);
+      console.log("Rabbit Detail:", detail);
 
+      // save clicked rabbit
+      await saveRecentRabbit(detail);
+
+      // get latest viewed rabbits
+      const recentRabbits = await getRecentRabbits();
+      console.log("Recent Rabbits:", recentRabbits);
+
+      // run recommendation
+      const recommendations = getRecommendations(recentRabbits, products);
+      console.log("Recommendations:", recommendations);
+
+      // update modal data
+      setSelectedProduct(detail);
+
+      setRecommended(recommendations.slice(0, 3));
     } catch (err) {
-      console.log("DETAIL ERROR:", err);
+        console.log("DETAIL ERROR:",err);
     } finally {
-      setLoadingDetail(false);
+        setLoadingDetail(false);
     }
+  };
+  const handleProductPress = async ( rabbit: Product ) => {
+    setModalVisible(true);
+
+    await loadRabbitDetail(rabbit);
   };
 
   const handleCartPress = async () => {
-    console.log("Adding to cart:", selectedProduct);
+    //console.log("Adding to cart:", selectedProduct);
     //console.log("TOKEN:", api.defaults.headers.common["Authorization"]);
     try {
       await addToCart(selectedProduct!.id);
-
+      console.log("Added to cart successfully");
       Alert.alert("Success", "Added to cart 🛒");
+      startTransition(() => {
+        setModalVisible(false);
+        router.push("/cart");
+      });
     } catch (err: any) {
-      console.log("ADD TO CART ERROR:", err);
+      console.log("Already inside cart");
 
       Alert.alert("Error", "Failed to add to cart");
     }
@@ -88,21 +119,33 @@ const HomeScreen = () => {
                     <Image
                       source={require('../assets/logo.png')}
                     />
-                    <Text style={styles.title}>{selectedProduct.title}</Text>
+                    <Text style={styles.title}>{selectedProduct.name}</Text>
                     <Text>Price: Rp {selectedProduct.price}</Text>
                     <Text>Breed: {selectedProduct.breed}</Text>
                     <Text>Color: {selectedProduct.color}</Text>
+                    <Text>Age: {selectedProduct.age}</Text>
                     <Text>Weight: {selectedProduct.weight}</Text>
                     <Text>Gender: {selectedProduct.gender}</Text>
                     <Text>Price: Rp {selectedProduct.price}</Text>
-                    
+                    <Text>Health Status: {selectedProduct.health_status}</Text>
+
                     <Pressable onPress={ handleCartPress }>
                       <Text style={{ color: "green", marginTop: 10 }}>Add to Cart</Text>
                     </Pressable>
+                    
+                    <Text style={{ marginTop: 20, fontWeight: "bold" }}>Recommended for you:</Text>
 
-                    <Pressable onPress={() => setModalVisible(false)}>
-                      <Text style={{ color: "blue", marginTop: 10 }}>Close</Text>
+                    {recommended.map((rabbit) => (
+                    <Pressable
+                      key={rabbit.id}
+                      style={styles.recommendationCard}
+                      onPress={() => loadRabbitDetail(rabbit)}>
+                      <Text>{rabbit.name}</Text>
+                      <Text>{rabbit.breed}</Text>
+                      <Text>Rp {rabbit.price}</Text>
                     </Pressable>
+
+                  ))}
                   </>
                 ) : null}
             </View>
@@ -143,5 +186,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     padding: 20,
     borderRadius: 12,
+  },
+  recommendationCard: {
+    flexDirection: "row",
+    backgroundColor: "#f0f0f0",
+    padding: 10,
+    marginBottom: 10,
+    borderRadius: 8,
   },
 });
