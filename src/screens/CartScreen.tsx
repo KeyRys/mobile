@@ -46,8 +46,8 @@ export default function CartScreen() {
     try {
       const res = await checkout();
       console.log("Checkout successful:", res);
-    } catch (err) {
-      console.log("Checkout failed:", err);
+    } catch (err: any) {
+      console.log("Checkout failed:", err.response?.data );
     }
   };
 

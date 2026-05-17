@@ -8,6 +8,7 @@ import {
   Alert,
   TextInput,
   TouchableOpacity,
+  Pressable,
 } from "react-native";
 
 import { logout } from "@/src/services/auth_services";
@@ -118,6 +119,9 @@ export default function ProfileScreen() {
           />
         </View>
       )}
+      <TouchableOpacity onPress={() =>router.push("/order")} style={styles.button}>
+        <Text style={styles.buttonText}>My Orders</Text>
+      </TouchableOpacity>
     </View>
   );
 }
