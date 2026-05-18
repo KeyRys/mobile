@@ -2,16 +2,18 @@ import {
   View,
   Text,
   FlatList,
+  StyleSheet,
   Pressable,
   RefreshControl,
 } from "react-native";
 
 import { useEffect, useState, } from "react";
+import { useRouter } from "expo-router"; 
 
 import { getSellerOrders, updateOrderStatus, } from "@/src/services/order_services";
 
 export default function SellerOrdersScreen() {
-
+  const router = useRouter();
   const [orders, setOrders] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -140,7 +142,31 @@ export default function SellerOrdersScreen() {
             )}
           </View>
         )}
+        
       />
+      <Pressable
+        style={styles.createBtn}
+        onPress={() => router.push("/seller/dashboard")}
+      >
+        <Text style={styles.btnText}>
+          Go back to Dashboard
+        </Text>
+      </Pressable>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  createBtn: {
+    backgroundColor: "#000",
+    padding: 14,
+    borderRadius: 10,
+    marginBottom: 16,
+  },
+
+  btnText: {
+    color: "#fff",
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+});

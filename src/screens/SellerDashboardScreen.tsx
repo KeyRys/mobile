@@ -110,6 +110,14 @@ export default function SellerDashboard() {
       </Pressable>
       <Pressable
         style={styles.createBtn}
+        onPress={() => router.push("/seller/add_relations")}
+        >
+        <Text style={styles.btnText}>
+          + Add Relations
+        </Text>
+      </Pressable>
+      <Pressable
+        style={styles.createBtn}
         onPress={() => router.push("/seller/seller_order")}
         >
         <Text style={styles.btnText}>

@@ -8,11 +8,12 @@ import {
   Alert,
   TextInput,
   TouchableOpacity,
-  RefreshControl
+  RefreshControl,
+  Pressable
 } from "react-native";
 
 import { logout } from "@/src/services/auth_services";
-import { getMyProfile } from "@/src/services/profile_service";
+import { getMyProfile, updateProfile } from "@/src/services/profile_service";
 import { becomeSeller } from "@/src/services/seller_service";
 import { router } from "expo-router";
 
@@ -23,6 +24,8 @@ export default function ProfileScreen() {
 
   const [location, setLocation] = useState("");
   const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
   const [sellerLoading, setSellerLoading] = useState(false);
 
   const fetchProfile = async () => {
@@ -54,7 +57,7 @@ export default function ProfileScreen() {
 
   const handleBecomeSeller = async () => {
     try {
-      if (!location.trim() || !phone.trim()){
+      if (!location.trim()){
         Alert.alert('Error', 'Please fill all fields');
         return;
       }
@@ -74,6 +77,16 @@ export default function ProfileScreen() {
       setSellerLoading(false);
     }
   };
+  
+  const handleSaveProfile = async() => {
+    if (!phone || !address){
+      Alert.alert('Error','please fill all fields');
+      return;
+    }
+    await updateProfile(phone, address,);
+    setIsEditing(false);
+    await fetchProfile();
+  }
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -90,7 +103,60 @@ export default function ProfileScreen() {
       <Text style={styles.title}>Profile</Text>
 
       <Text>Name: {profile?.name}</Text>
-      <Text>Phone: {profile?.phone}</Text>
+      <Text>Phone:
+        {isEditing ? (
+        <TextInput
+          value={phone}
+          onChangeText={setPhone}
+          placeholder="Phone"
+          style={{
+            borderWidth: 1,
+            padding: 10,
+            marginBottom: 10,
+          }}
+          keyboardType="numeric"
+        />
+      ) : (
+        <>
+          {profile?.phone}
+        </>
+      )}
+      </Text>
+      <Text>Address:
+        {isEditing ? (
+        <TextInput
+          value={address}
+          onChangeText={setAddress}
+          placeholder="Address"
+          style={{
+            borderWidth: 1,
+            padding: 10,
+            marginBottom: 10,
+          }}
+        /> 
+      ) : (
+        <>
+          {profile?.address}
+        </>
+      )}
+      </Text>
+
+      {!isEditing && (
+        <Pressable onPress={() => setIsEditing(true)}>
+          <Text>
+            Edit
+          </Text>
+        </Pressable>
+      )}
+
+      {isEditing && (
+        <Pressable onPress={ handleSaveProfile }>
+          <Text>
+            Save
+          </Text>
+        </Pressable>
+      )}
+
       <TouchableOpacity
         style={styles.button}
         onPress={handleLogout}
@@ -114,14 +180,6 @@ export default function ProfileScreen() {
       {!profile?.is_seller && (
         <View style={{ marginTop: 30 }}>
           <Text style={styles.subtitle}>Become Seller</Text>
-          <TextInput
-            placeholder="Enter your phonenumber"
-            value={phone}
-            onChangeText={setPhone}
-            style={styles.input}
-            inputMode="numeric"
-            keyboardType="numeric"
-          />
           <TextInput
             placeholder="Enter your location"
             value={location}

@@ -39,3 +39,20 @@ export const deleteRabbit = async (
 
   return res.data;
 };
+
+export const addRelation = async(parentID: string, childID: string) => {
+  const res = await api.post("/seller/relations",
+        {
+          parent_id: parentID,
+          child_id: childID,
+        }
+      );
+
+    return res.data;
+}
+
+export const getRabbitRelation = async () => {
+    const res = await api.get(`/seller/relations`);
+
+    return res.data;
+};

@@ -154,7 +154,7 @@ export default function AddRabbit() {
         value={description}
         onChangeText={setDescription}
       />
-
+      
       <Pressable
         style={styles.button}
         onPress={handleCreate}
@@ -163,7 +163,15 @@ export default function AddRabbit() {
           Create Rabbit
         </Text>
       </Pressable>
-
+      
+      <Pressable
+        style={styles.button}
+        onPress={() => router.push("/seller/dashboard")}
+      >
+        <Text style={styles.btnText}>
+          Go back to Dashboard
+        </Text>
+      </Pressable>
     </View>
   );
 }
@@ -193,8 +201,9 @@ const styles = StyleSheet.create({
 
   button: {
     backgroundColor: "#000",
-    padding: 14,
+    padding: 8,
     borderRadius: 10,
+    marginBottom: 12,
   },
 
   btnText: {
