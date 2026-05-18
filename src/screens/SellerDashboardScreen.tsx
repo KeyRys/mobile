@@ -101,14 +101,21 @@ export default function SellerDashboard() {
         )}
       />
       <Pressable
-        style={styles.createBtn}
+        style={[styles.createBtn, { marginTop: 12 }]}
         onPress={() => router.push("/seller/add_rabbit")}
       >
         <Text style={styles.btnText}>
           + Add Rabbit
         </Text>
       </Pressable>
-      
+      <Pressable
+        style={styles.createBtn}
+        onPress={() => router.push("/seller/seller_order")}
+        >
+        <Text style={styles.btnText}>
+          View Seller Orders
+        </Text>
+      </Pressable>
       <Pressable
         style={styles.createBtn}
         onPress={() => router.replace("/home")}

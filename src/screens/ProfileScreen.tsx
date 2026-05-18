@@ -8,7 +8,7 @@ import {
   Alert,
   TextInput,
   TouchableOpacity,
-  Pressable,
+  RefreshControl
 } from "react-native";
 
 import { logout } from "@/src/services/auth_services";
@@ -19,16 +19,16 @@ import { router } from "expo-router";
 export default function ProfileScreen() {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false)
 
   const [location, setLocation] = useState("");
+  const [phone, setPhone] = useState("");
   const [sellerLoading, setSellerLoading] = useState(false);
 
   const fetchProfile = async () => {
     try {
       const data = await getMyProfile();
-
       //console.log("PROFILE:", data);
-
       setProfile(data);
     } catch (err) {
       console.log(err);
@@ -54,6 +54,10 @@ export default function ProfileScreen() {
 
   const handleBecomeSeller = async () => {
     try {
+      if (!location.trim() || !phone.trim()){
+        Alert.alert('Error', 'Please fill all fields');
+        return;
+      }
       setSellerLoading(true);
 
       await becomeSeller(location);
@@ -70,6 +74,12 @@ export default function ProfileScreen() {
       setSellerLoading(false);
     }
   };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchProfile();
+    setRefreshing(false);
+  }
 
   if (loading) {
     return <ActivityIndicator size="large" />;
@@ -104,9 +114,16 @@ export default function ProfileScreen() {
       {!profile?.is_seller && (
         <View style={{ marginTop: 30 }}>
           <Text style={styles.subtitle}>Become Seller</Text>
-
           <TextInput
-            placeholder="Seller location"
+            placeholder="Enter your phonenumber"
+            value={phone}
+            onChangeText={setPhone}
+            style={styles.input}
+            inputMode="numeric"
+            keyboardType="numeric"
+          />
+          <TextInput
+            placeholder="Enter your location"
             value={location}
             onChangeText={setLocation}
             style={styles.input}

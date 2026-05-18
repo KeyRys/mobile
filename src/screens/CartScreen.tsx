@@ -7,15 +7,17 @@ import {
   Image,
   StyleSheet,
   Pressable,
+  RefreshControl,
 } from "react-native";
 
 import { getCart, removeFromCart } from "@/src/services/cart_service";
-import { checkout } from "../services/checkout_services";
+import { checkout } from "@/src/services/checkout_services";
 
 export default function CartScreen() {
 
   const [items, setItems] = useState<any[]>([]);
-
+  const [refreshing, setRefreshing] = useState(false);
+  
   useEffect(() => {
     fetchCart();
   }, []);
@@ -30,6 +32,12 @@ export default function CartScreen() {
       console.log(err);
     }
   };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchCart();
+    setRefreshing(false);
+  }
 
   const handleRemoveItem = async (itemId: string) => {
     console.log("Remove item:", itemId);
@@ -56,6 +64,12 @@ export default function CartScreen() {
 
       <FlatList
         data={items}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+          />
+        }
         keyExtractor={(item) => item.id}
 
         renderItem={({ item }) => (

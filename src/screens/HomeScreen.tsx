@@ -1,5 +1,5 @@
 import { startTransition, useEffect, useState } from "react";
-import { Image, Modal, View, Text, FlatList, StyleSheet, Pressable, TouchableWithoutFeedback, Alert, TouchableOpacity } from "react-native";
+import { Image, Modal, View, Text, FlatList, StyleSheet, Pressable, TouchableWithoutFeedback, Alert, RefreshControl } from "react-native";
 import { api } from "@/src/services/api";
 import { getProductById } from "@/src/services/product_service";
 import { router } from "expo-router";
@@ -27,6 +27,7 @@ const HomeScreen = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [recommended, setRecommended] = useState<Product[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
 
   const fetchProducts = async () => {
     try {
@@ -90,6 +91,12 @@ const HomeScreen = () => {
     }
   };
 
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await fetchProducts();
+    setRefreshing(false);
+  }
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -105,6 +112,11 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <FlatList
         data={products}
+        refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+        />}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
       />
@@ -120,7 +132,6 @@ const HomeScreen = () => {
                       source={require('../assets/logo.png')}
                     />
                     <Text style={styles.title}>{selectedProduct.name}</Text>
-                    <Text>Price: Rp {selectedProduct.price}</Text>
                     <Text>Breed: {selectedProduct.breed}</Text>
                     <Text>Color: {selectedProduct.color}</Text>
                     <Text>Age: {selectedProduct.age}</Text>

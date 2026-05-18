@@ -5,3 +5,15 @@ export const getMyOrders = async () => {
 
     return res.data;
 };
+
+export const getSellerOrders = async () => {
+    const res = await api.get("/orders/seller");
+
+    return res.data;
+};
+
+export const updateOrderStatus = async (orderId: number, status: string) => {
+    const res = await api.put(`/orders/${orderId}`, { status });
+
+    return res.data;
+};
